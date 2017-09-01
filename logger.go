@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/middleware"
@@ -65,6 +66,13 @@ func (l *StructuredLoggerEntry) Write(status, bytes int, elapsed time.Duration) 
 }
 
 func (l *StructuredLoggerEntry) Panic(v interface{}, stack []byte) {
-	l.StructuredLogger.Logger.Println("level:ERROR\tmessage:" + fmt.Sprintf("%+v", v) + "\tstack:" + string(stack))
-	// TODO: escape tabs and line breaks
+	l.StructuredLogger.Logger.Println("level:ERROR\tmessage:" + escape(fmt.Sprintf("%+v", v)) + "\tstack:" + escape(string(stack)))
+}
+
+func escape(s string) string {
+	s = strings.Replace(s, "\n", `\n`, -1)
+	s = strings.Replace(s, "\r", `\r`, -1)
+	s = strings.Replace(s, "\t", `\t`, -1)
+	s = strings.Replace(s, "\\", `\\`, -1)
+	return s
 }
